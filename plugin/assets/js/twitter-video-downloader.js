@@ -6,6 +6,7 @@
 
     // Global variables
     let currentTwitterUrl = '';
+    let isDownloading = false; // Track download state globally
 
     /**
      * Show message to user
@@ -24,6 +25,52 @@
     function showLoading(show) {
         $('#tvd-loading').toggle(show);
         $('#tvd-download-btn').prop('disabled', show);
+    }
+
+    /**
+     * Show download progress indicator
+     */
+    function showDownloadProgress(show, quality = '') {
+        if (show) {
+            // Create progress indicator if it doesn't exist
+            if ($('#tvd-download-progress').length === 0) {
+                $('body').append(`
+                    <div id="tvd-download-progress" class="tvd-download-progress">
+                        <div class="tvd-spinner"></div>
+                        <div class="progress-text">Downloading ${quality}...</div>
+                        <button class="progress-close" onclick="hideDownloadProgress()">×</button>
+                    </div>
+                `);
+            }
+            $('#tvd-download-progress').addClass('show');
+        } else {
+            $('#tvd-download-progress').removeClass('show');
+        }
+    }
+
+    /**
+     * Hide download progress indicator
+     */
+    window.hideDownloadProgress = function() {
+        showDownloadProgress(false);
+    };
+
+    /**
+     * Set download state for format cards
+     */
+    function setDownloadState(downloading, activeCard = null) {
+        isDownloading = downloading;
+        const formatsGrid = $('.tvd-formats-grid');
+        
+        if (downloading) {
+            formatsGrid.addClass('downloading');
+            if (activeCard) {
+                activeCard.addClass('downloading');
+            }
+        } else {
+            formatsGrid.removeClass('downloading');
+            $('.tvd-format-card').removeClass('downloading');
+        }
     }
 
     /**
@@ -125,8 +172,18 @@
                         <div class="tvd-download-icon">⬇️</div>
                     `);
 
-                    formatCard.on('click', () => {
-                        tvdDownloadVideo(originalUrl, qualityLabel, index + 1);
+                    // Store data for download
+                    formatCard.data('url', originalUrl);
+                    formatCard.data('quality', qualityLabel);
+                    formatCard.data('videoNumber', index + 1);
+
+                    formatCard.on('click', function() {
+                        if (!isDownloading) {
+                            const url = $(this).data('url');
+                            const quality = $(this).data('quality');
+                            const videoNumber = $(this).data('videoNumber');
+                            tvdDownloadVideo(url, quality, videoNumber, $(this));
+                        }
                     });
                     
                     formatsGrid.append(formatCard);
@@ -139,9 +196,27 @@
         $('#tvd-video-info').show();
     }
 
-    window.tvdDownloadVideo = function(twitterUrl, quality, videoNumber) {
+    window.tvdDownloadVideo = function(twitterUrl, quality, videoNumber, formatCard = null) {
+        // Prevent multiple downloads
+        if (isDownloading) {
+            showMessage('Download already in progress. Please wait...', 'error');
+            return;
+        }
+
         try {
+            // Set download state
+            setDownloadState(true, formatCard);
+            showDownloadProgress(true, quality.split(' ')[0]);
             showMessage('Starting download...', 'success');
+            
+            // Set a timeout to prevent hanging downloads
+            const downloadTimeout = setTimeout(() => {
+                if (isDownloading) {
+                    setDownloadState(false);
+                    showDownloadProgress(false);
+                    showMessage('Download timeout. Please try again.', 'error');
+                }
+            }, 300000); // 5 minutes timeout
     
             $.ajax({
                 url: tvd_ajax.ajax_url,
@@ -153,6 +228,7 @@
                     quality: quality.split(' ')[0],
                     video_number: videoNumber
                 },
+                timeout: 300000, // 5 minutes timeout
                 success: function(response) {
                     console.log('Response received:', response); // Debug log
                     
@@ -206,11 +282,21 @@
                 error: function(xhr, status, error) {
                     console.error('AJAX error:', status, error);
                     showMessage('Failed to connect to download service: ' + error, 'error');
+                },
+                complete: function() {
+                    // Clear timeout
+                    clearTimeout(downloadTimeout);
+                    // Reset download state
+                    setDownloadState(false);
+                    showDownloadProgress(false);
                 }
             });
         } catch (error) {
             console.error('Download function error:', error);
             showMessage('Error: ' + error.message, 'error');
+            // Reset download state on error
+            setDownloadState(false);
+            showDownloadProgress(false);
         }
     };
 
@@ -232,6 +318,14 @@
 
         $(document).on('click', '.tvd-paste-btn', function() {
             tvdPasteFromClipboard();
+        });
+
+        // Keyboard shortcuts
+        $(document).on('keydown', function(e) {
+            // ESC key to close download progress
+            if (e.key === 'Escape' && $('#tvd-download-progress').hasClass('show')) {
+                hideDownloadProgress();
+            }
         });
     });
 
