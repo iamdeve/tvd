@@ -25,9 +25,6 @@ class TVD_Shortcode {
 
         ?>
         <div class="tvd-container" style="max-width: <?php echo esc_attr($atts['width']); ?>; margin: 0 auto;">
-            <div class="tvd-logo"><?php echo esc_html($atts['title']); ?></div>
-            <p class="tvd-subtitle"><?php echo esc_html($atts['subtitle']); ?></p>
-
             <div class="tvd-input-group">
                 <input
                     type="text"
@@ -56,16 +53,6 @@ class TVD_Shortcode {
             </div>
 
             <?php if ($atts['show_instructions'] === 'true'): ?>
-            <div class="tvd-instructions">
-                <h3>How to download Twitter videos:</h3>
-                <ol>
-                    <li>Open Twitter and go to the tweet containing the video</li>
-                    <li>Click the share button and select "Copy link to Tweet"</li>
-                    <li>Paste the link in the input field above</li>
-                    <li>Click "Download" to see available quality options</li>
-                    <li>Choose your preferred quality and download</li>
-                </ol>
-            </div>
             <?php endif; ?>
         </div>
         <?php

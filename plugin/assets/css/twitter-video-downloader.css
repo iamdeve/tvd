@@ -22,8 +22,8 @@
 }
 
 .tvd-logo::before {
-    content: "🐦";
-    font-size: 2rem;
+    /* content: "🐦";
+    font-size: 2rem; */
 }
 
 .tvd-subtitle {
@@ -63,20 +63,20 @@
     transform: translateY(-50%);
     background: #f7f9fa;
     border: none;
-    padding: 8px 15px;
+    padding: 4px 15px;
     border-radius: 20px;
     cursor: pointer;
-    color: #1da1f2;
+    color: rgb(32, 186, 29);
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
 .tvd-paste-btn:hover {
-    background: #1da1f2;
+    background: linear-gradient(135deg, rgb(22, 64, 95) 0%, rgb(32, 186, 29) 51%, rgb(32, 178, 34) 100%);
 }
 
 .tvd-download-btn {
-    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+    background: linear-gradient(135deg, rgb(22, 64, 95) 0%, rgb(32, 186, 29) 51%, rgb(32, 178, 34) 100%);
     color: white;
     border: none;
     padding: 15px 40px;
@@ -90,11 +90,13 @@
 
 .tvd-download-btn:hover {
     transform: translateY(-2px);
+    background: linear-gradient(135deg, rgb(22, 64, 95) 0%, rgb(32, 186, 29) 51%, rgb(32, 178, 34) 100%);
+    color: white;
     box-shadow: 0 6px 20px rgba(29, 161, 242, 0.4);
 }
 
 .tvd-download-btn:disabled {
-    background: #1da1f2;
+    background: linear-gradient(135deg, rgb(22, 64, 95) 0%, rgb(32, 186, 29) 51%, rgb(32, 178, 34) 100%);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -107,7 +109,7 @@
 
 .tvd-spinner {
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #1da1f2;
+    border-top: 3px solid rgb(32, 186, 29);
     border-radius: 50%;
     width: 30px;
     height: 30px;
